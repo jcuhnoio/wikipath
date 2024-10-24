@@ -55,6 +55,14 @@ class Graph():
         except:
             raise KeyError(f"Vertex {v1} not found")
         
+    
+    def __iter__(self):
+        """
+        When called in for loop
+        """
+        return iter(self.graph.items())
+    
+        
     def __str__(self):
         """
         When called in print()
@@ -68,3 +76,7 @@ if __name__ == "__main__":
     my_graph = Graph(graph_dict=graph_dict)
     my_graph.add_edge("Node2", "Node1", 10)
     print(my_graph)
+
+    for i,j in my_graph:
+        print(i,j)
+

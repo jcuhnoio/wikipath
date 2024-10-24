@@ -68,15 +68,21 @@ class Graph():
         When called in print()
         """
         return str(self.graph)
+
+    def __len__(self):
+        """
+        When called in len()
+        """
+        return len(self.graph)
         
-            
+
+
+
 if __name__ == "__main__":
     # For testing
     graph_dict = {"Node1": {}}
     my_graph = Graph(graph_dict=graph_dict)
     my_graph.add_edge("Node2", "Node1", 10)
-    print(my_graph)
+    print(len(my_graph))
 
-    for i,j in my_graph:
-        print(i,j)
 

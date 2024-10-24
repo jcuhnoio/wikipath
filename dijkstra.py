@@ -45,7 +45,6 @@ class Dijkstra(Graph):
 
                 # Iterate through current vertex neighbots
                 for neighbor, weight in self.graph[cur_node].items():
-                    print(neighbor)
                     if neighbor not in visited:
                         # If current distance value is larger than the cumulative sum, it updates
                         tent_dist = cur_dist + weight
@@ -54,7 +53,21 @@ class Dijkstra(Graph):
                             heappush(pq, (tent_dist, neighbor))
 
         return distances
+    
+    def get_shortest_path(self, start: str, goal: str):
 
+        distances = self.get_dists(start = start)
+        path = [goal]
+        cur = goal
+
+        while cur != start:
+            print(cur)
+            for neighbor, weight in self.graph[cur].items():
+                if distances[cur] - weight == distances[neighbor]:
+                    cur = neighbor
+                    path.append(cur)
+
+        return path[::-1]
 
 if __name__ == "__main__":
     test_graph = {
@@ -68,5 +81,5 @@ if __name__ == "__main__":
                 }
 
     dijk = Dijkstra(test_graph)
-    result = dijk.get_dists(start="B")
+    result = dijk.get_shortest_path(start="B", goal="G")
     print(result)

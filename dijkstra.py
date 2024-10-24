@@ -22,54 +22,80 @@ class Dijkstra(Graph):
         super().__init__(graph_dict)
 
     def get_dists(self, start: str) -> dict:
+        """
+        Given a starting vertex, compute the shortest distance from starting vertex to every other vertex
 
-        # Store vertices we already visited
-        visited = set()
+        Args:
+            start: vertex to start from; this is a key for the graph dictionary
 
-        # Initialize all distances between `start` to other nodes to infinity, start node will get 0
-        distances = {key: float('inf') for key in self.graph} 
-        distances[start] = 0
+        Returns:
+            distances: dictionary containing shortest distance form starting vertex for every other vertex
+        """
+        if start not in self.graph:
+            raise KeyError(f"vertex {start} not found.")
 
-        # Priotiry queue of vertices we need to visit, elements are in (distance, vertex) form
-        pq = [(0, start)]
-        heapify(pq)
+        else:
+            # Store vertices we already visited
+            visited = set()
+
+            # Initialize all distances between `start` to other nodes to infinity, start node will get 0
+            distances = {key: float('inf') for key in self.graph} 
+            distances[start] = 0
+
+            # Priotiry queue of vertices we need to visit, elements are in (distance, vertex) form
+            pq = [(0, start)]
+            heapify(pq)
 
 
-        # When pq is empty, that means we visited every vertex 
-        while pq:
-            cur_dist, cur_node = heappop(pq)
+            # When pq is empty, that means we visited every vertex 
+            while pq:
+                cur_dist, cur_node = heappop(pq)
 
-            if cur_node in visited:
-                continue
-                
-            else:
-                visited.add(cur_node)
+                if cur_node in visited:
+                    continue
+                    
+                else:
+                    visited.add(cur_node)
 
-                # Iterate through current vertex neighbots
-                for neighbor, weight in self.graph[cur_node].items():
-                    if neighbor not in visited:
-                        # If current distance value is larger than the cumulative sum, it updates
-                        tent_dist = cur_dist + weight
-                        if tent_dist < distances[neighbor]: 
-                            distances[neighbor] = tent_dist
-                            heappush(pq, (tent_dist, neighbor))
+                    # Iterate through current vertex neighbots
+                    for neighbor, weight in self.graph[cur_node].items():
+                        if neighbor not in visited:
+                            # If current distance value is larger than the cumulative sum, it updates
+                            tent_dist = cur_dist + weight
+                            if tent_dist < distances[neighbor]: 
+                                distances[neighbor] = tent_dist
+                                heappush(pq, (tent_dist, neighbor))
 
-        return distances
+            return distances
     
     def get_shortest_path(self, start: str, goal: str):
+        """
+        Given a starting vertex and a goal vertex, compute the shortest distance between the two vertices
 
-        distances = self.get_dists(start = start)
-        path = [goal]
-        cur = goal
+        Args:
+            start: vertex to start from; this is a key for the graph dictionary
+            goal: vertex to end at; this is a key for this graph dictionary
 
-        while cur != start:
-            for neighbor, weight in self.graph[cur].items():
-                diff = (distances[cur] - weight) - distances[neighbor]
-                if abs(diff) < EPSILON: # Using epsilon comparison to prevent floating point error
-                    cur = neighbor
-                    path.append(cur)
+        Returns:
+            path: list of vertices that make up the shortest path
+        """
 
-        return path[::-1]
+        if goal not in self.graph:
+            raise Exception(f"vertex {goal} not found.")
+
+        else:
+            distances = self.get_dists(start = start)
+            path = [goal]
+            cur = goal
+
+            while cur != start:
+                for neighbor, weight in self.graph[cur].items():
+                    diff = (distances[cur] - weight) - distances[neighbor]
+                    if abs(diff) < EPSILON: # Using epsilon comparison to prevent floating point error
+                        cur = neighbor
+                        path.append(cur)
+
+            return path[::-1]
 
 if __name__ == "__main__":
     test_graph = {

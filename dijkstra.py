@@ -14,6 +14,8 @@ Implementation of Dijkstra's Algorithm
 from graph import Graph
 from heapq import heapify, heappop, heappush
 
+EPSILON = 10 ** -8
+
 class Dijkstra(Graph):
 
     def __init__(self, graph_dict: dict) -> None:
@@ -61,10 +63,9 @@ class Dijkstra(Graph):
         cur = goal
 
         while cur != start:
-            print(cur)
             for neighbor, weight in self.graph[cur].items():
-                print(distances[cur] - weight, distances[neighbor])
-                if round(distances[cur] - weight, 3) == round(distances[neighbor], 3): # Round to prevent floating point
+                diff = (distances[cur] - weight) - distances[neighbor]
+                if abs(diff) < EPSILON: # Using epsilon comparison to prevent floating point error
                     cur = neighbor
                     path.append(cur)
 
@@ -82,5 +83,5 @@ if __name__ == "__main__":
                 }
 
     dijk = Dijkstra(test_graph)
-    result = dijk.get_shortest_path(start="B", goal="G")
+    result = dijk.get_shortest_path(start="B", goal="A")
     print(result)

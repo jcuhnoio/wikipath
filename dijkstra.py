@@ -63,7 +63,8 @@ class Dijkstra(Graph):
         while cur != start:
             print(cur)
             for neighbor, weight in self.graph[cur].items():
-                if distances[cur] - weight == distances[neighbor]:
+                print(distances[cur] - weight, distances[neighbor])
+                if round(distances[cur] - weight, 3) == round(distances[neighbor], 3): # Round to prevent floating point
                     cur = neighbor
                     path.append(cur)
 

@@ -1,33 +1,36 @@
 from graph import Graph
 from heapq import heapify, heappop, heappush
 
-def dijkstra(start, end, graph: Graph):
+class Dijkstra(Graph):
 
-    # Store nodes we already visited
-    visited = set()
+    def __init__(self, graph_dict: dict)->None:
+        super().__init__(graph_dict)
 
-    # Initialize all distances between `start` to other nodes to infinity, start node will get 0
-    distances = {key: float('inf') for key in graph} 
-    distances[start] = 0
+    def run(self, start: str, end: str):
 
-    pq = [(0, start)]
+        # Store nodes we already visited
+        visited = set()
 
-    while len(visited) != len(graph):
-        # Iterate through root vertex's neighboring vertices
-        for vertex, weight in graph[start].items():
-            if vertex not in visited:
-                if distances[vertex] + weight < distances[vertex]:
-                    distances[vertex] += weight
+        # Initialize all distances between `start` to other nodes to infinity, start node will get 0
+        distances = {key: float('inf') for key in self.graph} 
+        distances[start] = 0
 
-        visited.append(start)
+        pq = [(0, start)]
+
+        while len(visited) != len(self.graph):
+            # Iterate through root vertex's neighboring vertices
+            for vertex, weight in self.graph[start].items():
+                if vertex not in visited:
+                    if distances[vertex] + weight < distances[vertex]:
+                        distances[vertex] += weight
+
+            visited.add(start)
 
 
-    return None
-
-
+        return None
 
 if __name__ == "__main__":
-    test_graph = graph = {
+    test_graph = {
                             "A": {"B": 3, "C": 3},
                             "B": {"A": 3, "D": 3.5, "E": 2.8},
                             "C": {"A": 3, "E": 2.8, "F": 3.5},
@@ -36,3 +39,6 @@ if __name__ == "__main__":
                             "F": {"G": 2.5, "C": 3.5},
                             "G": {"F": 2.5, "E": 7, "D": 10},
                         }
+
+    dijk = Dijkstra(test_graph)
+    result = dijk.run(start="B", end="E")

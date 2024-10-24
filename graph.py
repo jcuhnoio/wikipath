@@ -3,7 +3,6 @@ Declaration of the Graph Class
 """
 
 class Graph():
-
     def __init__(self, graph_dict: dict) -> None:
         """
         Initialize the Graph object
@@ -57,11 +56,12 @@ class Graph():
             raise KeyError(f"Vertex {v1} not found")
         
     def __str__(self):
+        """
+        When called in print()
+        """
         return str(self.graph)
         
             
-
-
 if __name__ == "__main__":
     # For testing
     graph_dict = {"Node1": {}}

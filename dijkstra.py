@@ -11,6 +11,8 @@ Implementation of Dijkstra's Algorithm
 4. Repeat steps 2 and 3 until all nodes are finished.
 """
 
+import networkx as nx
+import matplotlib.pyplot as plt
 from graph import Graph
 from heapq import heapify, heappop, heappush
 
@@ -20,6 +22,7 @@ class Dijkstra(Graph):
 
     def __init__(self, graph_dict: dict) -> None:
         super().__init__(graph_dict)
+        self.path = None
 
     def get_dists(self, start: str) -> dict:
         """
@@ -94,8 +97,25 @@ class Dijkstra(Graph):
                     if abs(diff) < EPSILON: # Using epsilon comparison to prevent floating point error
                         cur = neighbor
                         path.append(cur)
+            self.path = path[::-1]
+            return self.path
+        
+    def visualize(self):
+        if self.path:
+            G = nx.Graph()
 
-            return path[::-1]
+            for vertex, neighbors in self.graph.items():
+                for neighbor, weight in neighbors.items():
+                    G.add_edge(vertex, neighbor, weight=weight)
+
+            pos = nx.spring_layout(G)
+            node_colors = ['lightblue' if node not in self.path else 'lightgreen' for node in G.nodes()]
+            nx.draw(G, pos, with_labels=True, node_color=node_colors, node_size=500, font_size = 10, font_weight = 'bold')
+            edge_labels = nx.get_edge_attributes(G, 'weight')
+            nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+            plt.show()
+        else:
+            raise TypeError("No path has been calculated")
 
 if __name__ == "__main__":
     test_graph = {
@@ -110,4 +130,5 @@ if __name__ == "__main__":
 
     dijk = Dijkstra(test_graph)
     result = dijk.get_shortest_path(start="B", goal="A")
-    print(result)
+    dijk.visualize()
+    

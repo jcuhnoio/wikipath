@@ -11,7 +11,7 @@ class AStar(Graph):
         self.graph = graph_dict
         self.vertex_heuristics = np.zeros((len(self.graph), 2))
 
-    def find_path(self, start, end):
+    def find_path(self, start: str, end: str) -> list:
         """
         From a given start node and end node, finds the optimal path
         between the two nodes based on a heuristic function.
@@ -53,11 +53,9 @@ class AStar(Graph):
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + self.find_heuristic(curr_node, neighbor)
                     heappush(pq, (tentative_g_score, neighbor))
-            
-
-        return None
+        
     
-    def generate_path(self, came_from, curr_node):
+    def generate_path(self, came_from: dict, curr_node: str) -> list:
 
         path = [curr_node]
 

@@ -1,10 +1,14 @@
 from bs4 import BeautifulSoup
+import fasttext.util
 import requests
 from graph import Graph
 import fasttext
 import numpy as np
 
+fasttext.util.download_model('en', if_exists='ignore')
+print("Loading word embeddings")
 model = fasttext.load_model('cc.en.300.bin')
+print("Done loading word embeddings")
 
 def get_html(URL):
     """
@@ -15,7 +19,7 @@ def get_html(URL):
     return response.text
 
 
-def get_links_weight_1(graph: Graph, URL):
+def get_links_weight_1(graph: Graph, article):
     """
     Gets all the links in the body content of the wiki page.
 
@@ -26,7 +30,8 @@ def get_links_weight_1(graph: Graph, URL):
     Returns:
         A Graph() object.
     """
-    html = get_html(URL)
+    wiki_url = "https://en.wikipedia.org"
+    html = get_html(wiki_url + "/wiki/" + article)
     soup = BeautifulSoup(html, "html.parser")
     container_div = soup.find("div", class_="mw-body-content")
     anchors = container_div.find_all("a")
@@ -35,16 +40,15 @@ def get_links_weight_1(graph: Graph, URL):
     anchors = [a for a in anchors if not a.get("class")]
     anchors = [a for a in anchors if a.get("href").startswith("/wiki")]
 
-    wiki_url = "https://en.wikipedia.org"
 
-    result_url = [f"{wiki_url}{a.get('href')}" for a in anchors]
 
-    for link in result_url:
-        graph.add_edge(URL, link, 1)
+    for a in anchors:
+        anchor_title = a.attrs['title']
+        graph.add_edge(article, anchor_title, 1)
     return graph
 
 
-def get_links_and_weights(graph: Graph, URL):
+def get_links_and_weights(graph: Graph, article):
     """
     Gets all the links and adds a weight to each link. A weight is equal to the
     Euclidean distance between the text embedding vector value of the title of
@@ -58,7 +62,9 @@ def get_links_and_weights(graph: Graph, URL):
     Returns:
         A Graph() object.
     """
-    html = get_html(URL)
+
+    wiki_url = "https://en.wikipedia.org"
+    html = get_html(wiki_url +'/wiki/' + article)
     soup = BeautifulSoup(html, "html.parser")
     title = soup.find("span", class_="mw-page-title-main").contents[0]
     title_vector = model.get_word_vector(title)
@@ -69,11 +75,15 @@ def get_links_and_weights(graph: Graph, URL):
     anchors = [a for a in anchors if not a.get("class")]
     anchors = [a for a in anchors if a.get("href").startswith("/wiki")]
 
-    wiki_url = "https://en.wikipedia.org"
 
     for a in anchors:
-        link_vector = model.get_word_vector(a.attrs['title'])
+        anchor_title = a.attrs['title']
+        link_vector = model.get_word_vector(anchor_title)
         vector_dist = np.linalg.norm(title_vector - link_vector)
-        graph.add_edge(URL, f"{wiki_url}{a.get('href')}", vector_dist)
+        graph.add_edge(article, anchor_title, vector_dist)
     return graph
 
+if __name__ == "__main__":
+    test_graph = Graph({})
+    get_links_weight_1(test_graph, "Dubazana")
+    print(test_graph)

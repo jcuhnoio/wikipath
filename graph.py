@@ -36,7 +36,6 @@ class Graph:
 
         # Update or add the edges between v1 and v2
         self.graph[v1][v2] = w
-        self.graph[v2][v1] = w
 
     def edge_weight(self, v1, v2):
         """

@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-import graph
+from graph import Graph
 import fasttext
 import numpy as np
 
@@ -15,17 +15,17 @@ def get_html(URL):
     return response.text
 
 
-def get_links_weight_1(URL):
+def get_links_weight_1(graph: Graph, URL):
     """
     Gets all the links in the body content of the wiki page.
 
     Args:
         URL (string): A string that represents the URL of the current page.
+        graph (Class graph): A graph class to add to.
 
     Returns:
         A Graph() object.
     """
-    return_graph = graph.Graph({})
     html = get_html(URL)
     soup = BeautifulSoup(html, "html.parser")
     container_div = soup.find("div", class_="mw-body-content")
@@ -40,11 +40,11 @@ def get_links_weight_1(URL):
     result_url = [f"{wiki_url}{a.get('href')}" for a in anchors]
 
     for link in result_url:
-        return_graph.add_edge(URL, link, 1)
-    return return_graph
+        graph.add_edge(URL, link, 1)
+    return graph
 
 
-def get_links_and_weights(URL):
+def get_links_and_weights(graph: Graph, URL):
     """
     Gets all the links and adds a weight to each link. A weight is equal to the
     Euclidean distance between the text embedding vector value of the title of
@@ -53,11 +53,11 @@ def get_links_and_weights(URL):
 
     Args:
         URL (string): A string that represents the URL of the current page.
+        graph (Class graph): A graph class to add to.
 
     Returns:
         A Graph() object.
     """
-    return_graph = graph.Graph({})
     html = get_html(URL)
     soup = BeautifulSoup(html, "html.parser")
     title = soup.find("span", class_="mw-page-title-main").contents[0]
@@ -74,6 +74,6 @@ def get_links_and_weights(URL):
     for a in anchors:
         link_vector = model.get_word_vector(a.attrs['title'])
         vector_dist = np.linalg.norm(title_vector - link_vector)
-        return_graph.add_edge(URL, f"{wiki_url}{a.get('href')}", vector_dist)
-    return return_graph
+        graph.add_edge(URL, f"{wiki_url}{a.get('href')}", vector_dist)
+    return graph
 

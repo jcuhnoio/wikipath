@@ -21,7 +21,7 @@ class Graph:
 
     def add_edge(self, v1: str, v2: str, w: float) -> None:
         """
-        Add an edge between v1 and v2 with weight w
+        Add an edge from v1 to v2 with weight w
 
         Args:
             v1: name of vertex 1
@@ -46,7 +46,7 @@ class Graph:
             v2: name of vertex 2
 
         Returns:
-            weight of the edge v1 <-> v2
+            weight of the edge v1 -> v2
         """
         try:
             edges = self.graph[v1]

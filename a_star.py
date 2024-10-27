@@ -9,8 +9,7 @@ class AStar(Graph):
         super().__init__(graph_dict)
 
         self.graph = graph_dict
-        self.vertex_heuristics = np.zeros((len(self.graph), 2))
-
+    
     def find_path(self, start, end):
         """
         From a given start node and end node, finds the optimal path
@@ -33,31 +32,40 @@ class AStar(Graph):
         g_score[start] = 0
 
         f_score = {key: float('inf') for key in self.graph} 
-        f_score[start] = self.find_heuristic(start, end)
+
+        f_score[start] = self.find_heuristic(start, end) #TODO: Modify find heuristic to use vector embeddings
 
 
         pq = [(f_score[start], start)]
         heapify(pq)
 
+        # Need to modify pq to continually update with new nodes
         while pq:
 
             _, curr_node = heappop(pq)
             if curr_node == end:
                 return self.generate_path(came_from, curr_node)
 
-            for neighbor, weight in self.graph[curr_node].items():
+            for neighbor, weight in self.graph[curr_node].items(): # This should remain unmodified
                 tentative_g_score = g_score[curr_node] + weight
                 if tentative_g_score < g_score[neighbor]:
                     # the path to this neighbor is better than previous
                     came_from.update({neighbor : curr_node})
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + self.find_heuristic(curr_node, neighbor)
-                    heappush(pq, (tentative_g_score, neighbor))
+                    heappush(pq, (tentative_g_score, neighbor)) # Add neighbor to the priority queue.
+                    # At the same point that a neighbor is added, we should also find all links going from this neighbor, and add these new connections to the graph dictionary
             
 
         return None
     
     def generate_path(self, came_from, curr_node):
+        """
+        Generates a list representing the path to traverse.
+
+        Args:
+            came_from (dict): Contains all paths
+        """
 
         path = [curr_node]
 
@@ -111,6 +119,10 @@ if __name__ == "__main__":
     "M": {"H": 5.2, "N": 3.8},
     "N": {"I": 4.6, "L": 5.7, "M": 3.8}
 }
+
+# To integrate Juno's code:
+# Start with seed graph which contains the start point
+
 
     test = AStar(test_graph)
     path = test.find_path("A", "J")

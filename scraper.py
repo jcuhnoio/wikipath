@@ -66,7 +66,9 @@ def get_links_and_weights(graph: Graph, article):
     wiki_url = "https://en.wikipedia.org"
     html = get_html(wiki_url +'/wiki/' + article)
     soup = BeautifulSoup(html, "html.parser")
-    title = soup.find("span", class_="mw-page-title-main").contents[0]
+
+    title = article
+
     title_vector = model.get_word_vector(title)
     container_div = soup.find("div", class_="mw-body-content")
     anchors = container_div.find_all("a")
@@ -74,6 +76,8 @@ def get_links_and_weights(graph: Graph, article):
     # Apply filters so that it only returns wikipedia links.
     anchors = [a for a in anchors if not a.get("class")]
     anchors = [a for a in anchors if a.get("href").startswith("/wiki")]
+    anchors = [a for a in anchors if 'title' in a.attrs]
+    anchors = [a for a in anchors if 'Wikipedia:' not in a.attrs['title']]
 
 
     for a in anchors:

@@ -39,7 +39,11 @@ def get_links_weight_1(graph: Graph, article):
     # Apply filters so that it only returns wikipedia links.
     anchors = [a for a in anchors if not a.get("class")]
     anchors = [a for a in anchors if a.get("href").startswith("/wiki")]
-
+    anchors = [a for a in anchors if 'title' in a.attrs]
+    anchors = [a for a in anchors if 'Wikipedia:' not in a.attrs['title']]
+    anchors = [a for a in anchors if 'Template:' not in a.attrs['title']]
+    anchors = [a for a in anchors if 'Special:' not in a.attrs['title']]
+    anchors = [a for a in anchors if 'Talk:' not in a.attrs['title']]
 
 
     for a in anchors:
@@ -78,7 +82,9 @@ def get_links_and_weights(graph: Graph, article):
     anchors = [a for a in anchors if a.get("href").startswith("/wiki")]
     anchors = [a for a in anchors if 'title' in a.attrs]
     anchors = [a for a in anchors if 'Wikipedia:' not in a.attrs['title']]
-
+    anchors = [a for a in anchors if 'Template:' not in a.attrs['title']]
+    anchors = [a for a in anchors if 'Special:' not in a.attrs['title']]
+    anchors = [a for a in anchors if 'Talk:' not in a.attrs['title']]
 
     for a in anchors:
         anchor_title = a.attrs['title']

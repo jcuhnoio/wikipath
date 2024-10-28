@@ -14,9 +14,12 @@ Implementation of Dijkstra's Algorithm
 import networkx as nx
 import matplotlib.pyplot as plt
 from graph import Graph
+from scraper import *
 from heapq import heapify, heappop, heappush
+from collections import defaultdict
 
-EPSILON = 10 ** -8
+EPSILON = 10**-8
+
 
 class Dijkstra(Graph):
 
@@ -39,24 +42,28 @@ class Dijkstra(Graph):
         visited = set()
 
         # Initialize all distances between `start` to other nodes to infinity, start node will get 0
-        distances = {key: float('inf') for key in self.graph} 
+        distances = defaultdict(
+            lambda: float("inf"), {key: float("inf") for key in self.graph}
+        )
         distances[start] = 0
 
         # Priotiry queue of vertices we need to visit, elements are in (distance, vertex) form
         pq = [(0, start)]
         heapify(pq)
 
-        came_from = {key: None for key in self.graph} 
+        came_from = {start: None}
 
-        # When pq is empty, that means we visited every vertex 
+        # When pq is empty, that means we visited every vertex
         while pq:
             cur_dist, cur_node = heappop(pq)
-            if cur_node == goal:
+            get_links_and_weights(self, cur_node)
+
+            if cur_node.lower() == goal.lower():
                 return self.generate_path(came_from, cur_node)
 
             if cur_node in visited:
                 continue
-                
+
             else:
                 visited.add(cur_node)
 
@@ -66,12 +73,12 @@ class Dijkstra(Graph):
                         # If current distance value is larger than the cumulative sum, it updates
                         tent_dist = cur_dist + weight
                         if tent_dist < distances[neighbor]:
-                            came_from[neighbor] = cur_node 
+                            came_from[neighbor] = cur_node
                             distances[neighbor] = tent_dist
                             heappush(pq, (tent_dist, neighbor))
 
         return distances
-    
+
     def generate_path(self, came_from: dict, curr_node: str):
         """
         Given a starting vertex and a goal vertex, compute the shortest distance between the two vertices
@@ -91,7 +98,7 @@ class Dijkstra(Graph):
         path.reverse()
         self.path = path
         return path
-        
+
     def visualize(self):
         if self.path:
             G = nx.Graph()
@@ -101,26 +108,28 @@ class Dijkstra(Graph):
                     G.add_edge(vertex, neighbor, weight=weight)
 
             pos = nx.spring_layout(G)
-            node_colors = ['lightblue' if node not in self.path else 'lightgreen' for node in G.nodes()]
-            nx.draw(G, pos, with_labels=True, node_color=node_colors, node_size=500, font_size = 10, font_weight = 'bold')
-            edge_labels = nx.get_edge_attributes(G, 'weight')
+            node_colors = [
+                "lightblue" if node not in self.path else "lightgreen"
+                for node in G.nodes()
+            ]
+            nx.draw(
+                G,
+                pos,
+                with_labels=True,
+                node_color=node_colors,
+                node_size=500,
+                font_size=10,
+                font_weight="bold",
+            )
+            edge_labels = nx.get_edge_attributes(G, "weight")
             nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
             plt.show()
         else:
             raise TypeError("No path has been calculated")
 
-if __name__ == "__main__":
-    test_graph = {
-                "A": {"B": 3, "C": 3},
-                "B": {"A": 3, "D": 3.5, "E": 2.8},
-                "C": {"A": 3, "E": 2.8, "F": 3.5},
-                "D": {"B": 3.5, "E": 3.1, "G": 10},
-                "E": {"B": 2.8, "C": 2.8, "D": 3.1, "G": 7},
-                "F": {"G": 2.5, "C": 3.5},
-                "G": {"F": 2.5, "E": 7, "D": 10},
-                }
 
-    dijk = Dijkstra(test_graph)
-    result = dijk.find_shortest_path(start="B", goal="G")
+if __name__ == "__main__":
+    dijk = Dijkstra({})
+    result = dijk.find_shortest_path(start="Alnico", goal="Magnetic field")
+    print(result)
     dijk.visualize()
-    

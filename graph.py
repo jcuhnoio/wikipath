@@ -37,25 +37,6 @@ class Graph:
         # Update or add the edges between v1 and v2
         self.graph[v1][v2] = w
 
-    def edge_weight(self, v1, v2):
-        """
-        Given two vertices, return the edge weight
-
-        Args:
-            v1: name of vertex 1
-            v2: name of vertex 2
-
-        Returns:
-            weight of the edge v1 -> v2
-        """
-        try:
-            edges = self.graph[v1]
-            try:
-                return edges[v2]
-            except:
-                raise KeyError(f"Vertex {v2} not found")
-        except:
-            raise KeyError(f"Vertex {v1} not found")
 
     def visualize(self):
         G = nx.Graph()

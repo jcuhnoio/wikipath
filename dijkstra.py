@@ -42,7 +42,6 @@ class Dijkstra(Graph):
         visited = set()
 
         # Initialize all distances between `start` to other nodes to infinity, start node will get 0
-        # distances = {key: float("inf") for key in self.graph}
         distances = defaultdict(
             lambda: float("inf"), {key: float("inf") for key in self.graph}
         )
@@ -58,9 +57,8 @@ class Dijkstra(Graph):
         while pq:
             cur_dist, cur_node = heappop(pq)
             get_links_and_weights(self, cur_node)
-            print(cur_node, cur_node == goal)
 
-            if cur_node == goal:
+            if cur_node.lower() == goal.lower():
                 return self.generate_path(came_from, cur_node)
 
             if cur_node in visited:
@@ -142,5 +140,6 @@ if __name__ == "__main__":
     }
 
     dijk = Dijkstra({})
-    result = dijk.find_shortest_path(start="Alnico", goal="Electric field")
+    result = dijk.find_shortest_path(start="Alnico", goal="Magnetic field")
     print(result)
+    dijk.visualize()

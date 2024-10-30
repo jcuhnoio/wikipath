@@ -4,6 +4,7 @@ import requests
 from graph import Graph
 import fasttext
 import numpy as np
+from scipy.spatial.distance import cosine
 
 fasttext.util.download_model('en', if_exists='ignore')
 print("Loading word embeddings")
@@ -52,7 +53,7 @@ def get_links_weight_1(graph: Graph, article):
     return graph
 
 
-def get_links_and_weights(graph: Graph, article):
+def get_links_and_weights(graph: Graph, article, end_vector):
     """
     Gets all the links and adds a weight to each link. A weight is equal to the
     Euclidean distance between the text embedding vector value of the title of
@@ -68,30 +69,35 @@ def get_links_and_weights(graph: Graph, article):
     """
 
     wiki_url = "https://en.wikipedia.org"
-    html = get_html(wiki_url +'/wiki/' + article)
+    html = get_html(wiki_url + '/wiki/' + article.replace(" ", "_"))
     soup = BeautifulSoup(html, "html.parser")
 
-    title = article
+    # Compute title vector once
+    title_vector = model.get_word_vector(article)
 
-    title_vector = model.get_word_vector(title)
+    # Retrieve links and filter in a single loop
     container_div = soup.find("div", class_="mw-body-content")
-    anchors = container_div.find_all("a")
+    for a in container_div.find_all("a", href=True):
+        if (
+            not a.get("class")  # Exclude links with a class attribute
+            and a['href'].startswith("/wiki")  # Only internal Wikipedia links
+            and 'title' in a.attrs  # Ensure a title attribute exists
+            and not any(prefix in a['title'] for prefix in ["Wikipedia:", "Template:", "Special:", "Talk:", "Portal:"])
+        ):
+            anchor_title = a['title']
+            link_vector = model.get_word_vector(anchor_title)
 
-    # Apply filters so that it only returns wikipedia links.
-    anchors = [a for a in anchors if not a.get("class")]
-    anchors = [a for a in anchors if a.get("href").startswith("/wiki")]
-    anchors = [a for a in anchors if 'title' in a.attrs]
-    anchors = [a for a in anchors if 'Wikipedia:' not in a.attrs['title']]
-    anchors = [a for a in anchors if 'Template:' not in a.attrs['title']]
-    anchors = [a for a in anchors if 'Special:' not in a.attrs['title']]
-    anchors = [a for a in anchors if 'Talk:' not in a.attrs['title']]
+            # Directly calculate and add the heuristic distance
+            similarity = 1 - cosine(end_vector, link_vector)
+            weight = (1 - similarity) + 1e-5
+            graph.add_edge(article, anchor_title, weight)
 
-    for a in anchors:
-        anchor_title = a.attrs['title']
-        link_vector = model.get_word_vector(anchor_title)
-        vector_dist = np.linalg.norm(title_vector - link_vector)
-        graph.add_edge(article, anchor_title, vector_dist)
     return graph
+
+def find_heuristic(start, end):
+        similarity = 1 - cosine(start, end)
+        heuristic = (1 - similarity) + 1e-5
+        return heuristic
 
 if __name__ == "__main__":
     test_graph = Graph({})

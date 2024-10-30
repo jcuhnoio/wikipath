@@ -5,6 +5,7 @@ from scraper import *
 from graph import Graph
 from heapq import heapify, heappop, heappush
 from collections import defaultdict
+import time
 
 
 class Dijkstra(Graph):
@@ -24,6 +25,7 @@ class Dijkstra(Graph):
         Returns:
             path: List of vertices that make up the shortest path, or a dictionary with distances if no path is found.
         """
+        end_vector = model.get_word_vector(goal)
 
         visited = set()  # Keep track of visited nodes
         distances = defaultdict(lambda: float("inf"), {key: float("inf") for key in self.graph})
@@ -35,20 +37,22 @@ class Dijkstra(Graph):
 
         # Track the path: which node we came from to get to each node
         came_from = {start: None}
-
+        
+        start_time = time.time()
         while pq:
             cur_dist, cur_node = heappop(pq)
-            get_links_and_weights(self, cur_node)
-
+            print(cur_node)
             # If the goal is reached, generate and return the path
             if cur_node.lower() == goal.lower():
+                print(f"{time.time() - start_time} seconds elapsed")
+                print(f"{len(visited)} articles visited")
                 return self.generate_path(came_from, cur_node)
 
             if cur_node in visited:
                 continue
 
             visited.add(cur_node)
-            get_links_and_weights(self, cur_node)
+            get_links_and_weights(self, cur_node, end_vector)
 
             # Process all neighbors of the current node
             for neighbor, weight in self.graph[cur_node].items():
@@ -59,9 +63,9 @@ class Dijkstra(Graph):
                         came_from[neighbor] = cur_node # type: ignore
                         distances[neighbor] = tent_dist
                         heappush(pq, (tent_dist, neighbor))
-          return []
+        return []
     
-    def find_shortest_path_precomputed(self, start: str, goal: str) -> dict:
+    def find_shortest_path_precomputed(self, start: str, goal: str) -> list:
         """
         Given a starting vertex, compute the shortest distance from starting vertex to every other vertex
 
@@ -101,6 +105,7 @@ class Dijkstra(Graph):
                 # Iterate through current vertex neighbots
                 for neighbor, weight in self.graph[cur_node].items():
                     # If the calculated distance is less than the known distance, update it
+                    tent_dist = cur_dist + weight
                     if tent_dist < distances[neighbor]:
                         came_from[neighbor] = cur_node # type: ignore
                         distances[neighbor] = tent_dist
@@ -173,11 +178,13 @@ class Dijkstra(Graph):
 
 
 if __name__ == "__main__":
-    # dijk_dynamic = Dijkstra({})
-    # result = dijk_dynamic.find_shortest_path_dynamic(start="Alnico", goal="Magnetic field")
+    dijk_dynamic = Dijkstra({})
+    result = dijk_dynamic.find_shortest_path_dynamic(start="Politics", goal="President")
+    print(result)
 
-    dijk_precomputed = Dijkstra(TEST_GRAPH)
-    result2 = dijk_precomputed.find_shortest_path_precomputed(start = "Node2", goal = "Node34")
-    print(result2)
-    dijk_precomputed.visualize(start = "Node2", end = "Node34")
+    # dijk_precomputed = Dijkstra(TEST_GRAPH)
+    # result2 = dijk_precomputed.find_shortest_path_precomputed(start = "Node2", goal = "Node34")
+
+    # print(result2)
+    # dijk_precomputed.visualize(start = "Node2", end = "Node34")
 

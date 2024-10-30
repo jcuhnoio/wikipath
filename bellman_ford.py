@@ -31,7 +31,7 @@ class BellmanFord(Graph):
         came_from = {start: None} 
 
         get_links_and_weights(self, start, end_vector)
-        start.time = time.time() 
+        start_time = time.time() 
 
         # Relax edges up to (number of vertices - 1) times
         for _ in range(len(self.graph) - 1):
@@ -51,6 +51,7 @@ class BellmanFord(Graph):
         
         if distances[goal] == float("inf"):
             return []  # No path found
+        print(f"{time.time() - start_time} seconds elapsed")
         return self.generate_path(came_from, goal)
 
     def generate_path(self, came_from: dict, curr_node: str):
@@ -113,5 +114,5 @@ class BellmanFord(Graph):
 
 if __name__ == "__main__":
     bf = BellmanFord({})
-    result = bf.find_shortest_path(start="Alnico", goal="Magnetic field")
+    result = bf.find_shortest_path(start="Alnico", goal="Magnetic stirrer")
     print(result)

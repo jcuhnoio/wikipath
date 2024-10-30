@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from graph import Graph
+from scraper import get_links_weight_1
 
 EPSILON = 10**-8
 
@@ -43,21 +44,26 @@ class BellmanFord(Graph):
         if distances is None:
             return None
 
-        path = [goal]
-        cur = goal
+        if distances[goal] == float("inf"):
+            print(f"No path from {start} to {goal}.")
+            return None
 
-        while cur != start:
+        path = []
+        current = goal
+        while current is not None:
+            path.append(current)
+
             found = False
-            for neighbor, weight in self.graph[cur].items():
-                if abs((distances[cur] - weight) - distances[neighbor]) < EPSILON:
-                    cur = neighbor
-                    path.append(cur)
+            for neighbor, weight in self.graph[current].items():
+                if abs(distances[current] - weight - distances[neighbor]) < EPSILON:
+                    current = neighbor
                     found = True
                     break
             if not found:
-                return None
-        self.path = path[::-1]
-        return self.path
+                break
+
+        path.reverse()
+        return path if path[0] == start else None
 
     def visualize(self):
         if self.path:
@@ -74,23 +80,18 @@ class BellmanFord(Graph):
             nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
             plt.show()
         else:
-            raise TypeError("No path has been calculated")
-
+            raise TypeError("No path has been found")
 
 if __name__ == "__main__":
-    test_graph = {
-        "A": {"B": 3, "C": 3},
-        "B": {"A": 3, "D": 3.5, "E": 2.8},
-        "C": {"A": 3, "E": 2.8, "F": 3.5},
-        "D": {"B": 3.5, "E": 3.1, "G": 10},
-        "E": {"B": 2.8, "C": 2.8, "D": 3.1, "G": 7},
-        "F": {"G": 2.5, "C": 3.5},
-        "G": {"F": 2.5, "E": 7, "D": 10},
-    }
+    # testing 
+    test_graph = Graph({})
+    get_links_weight_1(test_graph, "Alnico")
+    bellman_ford = BellmanFord(test_graph.graph)
 
-    bf = BellmanFord(test_graph)
-    path = bf.get_shortest_path("A", "G")
-    print("Shortest path from A to G:", path)
+    print("Demo Graph:", bellman_ford.graph)
 
-    if path:
-        bf.visualize()
+    result = bellman_ford.get_shortest_path(start="Alnico", goal="Magnetic field")
+    if result is not None:
+        print("Shortest Path:", (result))
+    else:
+        print("No path.")

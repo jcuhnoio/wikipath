@@ -4,6 +4,7 @@ from graph import Graph, TEST_GRAPH
 from scraper import *
 from graph import Graph
 from collections import defaultdict
+import time
 
 
 class BellmanFord(Graph):
@@ -22,10 +23,15 @@ class BellmanFord(Graph):
         Returns:
             path: List of vertices that make up the shortest path, or an empty list if no path is found.
         """
+        end_vector = model.get_word_vector(goal)
+
         # Initialize distances to infinity and set the distance of the start node to 0
-        distances = defaultdict(lambda: float("inf"))
+        distances = defaultdict(lambda: float("inf"), {key: float("inf") for key in self.graph})
         distances[start] = 0
-        came_from = {start: None}  # Track the path
+        came_from = {start: None} 
+
+        get_links_and_weights(self, start, end_vector)
+        start.time = time.time() 
 
         # Relax edges up to (number of vertices - 1) times
         for _ in range(len(self.graph) - 1):
@@ -34,6 +40,7 @@ class BellmanFord(Graph):
                     if distances[vertex] + weight < distances[neighbor]:
                         distances[neighbor] = distances[vertex] + weight
                         came_from[neighbor] = vertex
+        
 
         # Check for negative weight cycles
         for vertex in self.graph:
@@ -41,7 +48,7 @@ class BellmanFord(Graph):
                 if distances[vertex] + weight < distances[neighbor]:
                     raise ValueError("Graph contains a negative weight cycle")
 
-        # Generate and return the path if the goal is reachable
+        
         if distances[goal] == float("inf"):
             return []  # No path found
         return self.generate_path(came_from, goal)
@@ -62,7 +69,7 @@ class BellmanFord(Graph):
             curr_node = came_from[curr_node]
             path.append(curr_node)
 
-        path.reverse()  # Reverse the path to get it from start to goal
+        path.reverse()  
         self.path = path
         return path
 
@@ -105,7 +112,6 @@ class BellmanFord(Graph):
 
 
 if __name__ == "__main__":
-    bellman_ford = BellmanFord(TEST_GRAPH)
-    result = bellman_ford.find_shortest_path(start="Node2", goal="Node34")
+    bf = BellmanFord({})
+    result = bf.find_shortest_path(start="Alnico", goal="Magnetic field")
     print(result)
-    bellman_ford.visualize(start="Node2", end="Node34")

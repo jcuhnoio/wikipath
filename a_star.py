@@ -79,7 +79,14 @@ class AStar(Graph):
         Generates a list representing the path to traverse.
 
         Args:
-            came_from (dict): Contains all paths
+            came_from (dict): Contains all articles traversed
+                in the least cost path.
+            curr_node (string): A string containing the current node
+                being traversed.
+
+        Returns:
+            path (list of strings): The path from the current node
+                to the start node.
         """
 
         path = [curr_node]
@@ -129,6 +136,6 @@ class AStar(Graph):
 if __name__ == "__main__":
    
     test = AStar({})
-    path = test.find_path("Graph Theory", "K-pop")
+    path = test.find_path("Alnico", "Electric field")
     print(path)
     #test.visualize(path)

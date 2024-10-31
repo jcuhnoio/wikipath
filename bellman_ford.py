@@ -1,8 +1,6 @@
 from scraper import *
 from graph import Graph
 
-import matplotlib.pyplot as plt
-
 import time
 import click
 from collections import defaultdict

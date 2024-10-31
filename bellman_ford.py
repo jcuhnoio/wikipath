@@ -26,29 +26,41 @@ class BellmanFord(Graph):
         end_vector = model.get_word_vector(goal)
 
         # Initialize distances to infinity and set the distance of the start node to 0
-        distances = defaultdict(lambda: float("inf"), {key: float("inf") for key in self.graph})
+        distances = defaultdict(
+            lambda: float("inf"), {key: float("inf") for key in self.graph}
+        )
         distances[start] = 0
-        came_from = {start: None} 
+        came_from = {start: None}
 
         get_links_and_weights(self, start, end_vector)
-        start_time = time.time() 
+        start_time = time.time()
+        if goal in self.graph:
+            came_from = {start: None, goal: start}
+            print(f"{time.time() - start_time} seconds elapsed")
+            return self.generate_path(came_from, goal)
 
-        # Relax edges up to (number of vertices - 1) times
-        for _ in range(len(self.graph) - 1):
+        while goal not in self.graph:
+            # Relax edges up to (number of vertices - 1) times
+            for _ in range(len(self.graph.copy()) - 1):
+                for vertex in self.graph.copy():
+                    print(vertex)
+                    get_links_and_weights(self, vertex, end_vector)
+                    for neighbor, weight in self.graph[vertex].items():
+                        if distances[vertex] + weight < distances[neighbor]:
+                            distances[neighbor] = distances[vertex] + weight
+                            came_from[neighbor] = vertex
+                if goal in self.graph:
+                    print(f"{time.time() - start_time} seconds elapsed")
+                    return self.generate_path(came_from, goal)
+
+            # Check for negative weight cycles
             for vertex in self.graph:
                 for neighbor, weight in self.graph[vertex].items():
                     if distances[vertex] + weight < distances[neighbor]:
-                        distances[neighbor] = distances[vertex] + weight
-                        came_from[neighbor] = vertex
-        
+                        raise ValueError(
+                            "Graph contains a negative weight cycle"
+                        )
 
-        # Check for negative weight cycles
-        for vertex in self.graph:
-            for neighbor, weight in self.graph[vertex].items():
-                if distances[vertex] + weight < distances[neighbor]:
-                    raise ValueError("Graph contains a negative weight cycle")
-
-        
         if distances[goal] == float("inf"):
             return []  # No path found
         print(f"{time.time() - start_time} seconds elapsed")
@@ -70,7 +82,7 @@ class BellmanFord(Graph):
             curr_node = came_from[curr_node]
             path.append(curr_node)
 
-        path.reverse()  
+        path.reverse()
         self.path = path
         return path
 
@@ -89,12 +101,22 @@ class BellmanFord(Graph):
                     G.add_edge(vertex, neighbor, weight=weight)
 
             plt.figure(figsize=(12, 8))  # Adjust the size as needed
-            pos = nx.spring_layout(G, k=1)  # Increase k for more space between nodes
+            pos = nx.spring_layout(
+                G, k=1
+            )  # Increase k for more space between nodes
 
             node_colors = [
-                "pink" if node == start else
-                "orange" if node == end else
-                ("lightgreen" if node in self.path else "lightblue")
+                (
+                    "pink"
+                    if node == start
+                    else (
+                        "orange"
+                        if node == end
+                        else (
+                            "lightgreen" if node in self.path else "lightblue"
+                        )
+                    )
+                )
                 for node in G.nodes()
             ]
             nx.draw(
@@ -105,7 +127,7 @@ class BellmanFord(Graph):
                 node_size=300,  # Smaller node size
                 font_size=10,
                 font_weight="bold",
-                width=0.5  # Thinner edges
+                width=0.5,  # Thinner edges
             )
             plt.show()
         else:
@@ -114,5 +136,5 @@ class BellmanFord(Graph):
 
 if __name__ == "__main__":
     bf = BellmanFord({})
-    result = bf.find_shortest_path(start="Alnico", goal="Magnetic stirrer")
+    result = bf.find_shortest_path(start="Alnico", goal="Bible")
     print(result)

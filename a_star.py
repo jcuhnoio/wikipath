@@ -19,6 +19,17 @@ class AStar(Graph):
       
     
     def find_path(self, start, end):
+        """
+        From a given start article and end article, computes a path of links
+        to traverse across Wikipedia from the start to the end.
+
+        Args:
+            start (string): Title of the start article.
+            end (string): Title of the end article.
+        Returns:
+            path (list of strings): A list showing the path from the start article
+                to the end article.
+        """
         # Initialize sets, scores, and queue as before
         pq = [(0, start)]
         heapify(pq)
@@ -118,6 +129,6 @@ class AStar(Graph):
 if __name__ == "__main__":
    
     test = AStar({})
-    path = test.find_path("Engineering", "Graph Theory")
+    path = test.find_path("Graph Theory", "K-pop")
     print(path)
     #test.visualize(path)

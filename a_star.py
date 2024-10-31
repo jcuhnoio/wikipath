@@ -1,14 +1,15 @@
 from graph import Graph
-from heapq import heapify, heappop, heappush
-import networkx as nx
-from matplotlib import pyplot as plt
-import numpy as np
-from collections import defaultdict
 from scraper import *
-from scipy.spatial.distance import cosine
+
 import time
+import click
 import fasttext
 import fasttext.util
+
+from collections import defaultdict
+from scipy.spatial.distance import cosine
+from heapq import heapify, heappop, heappush
+
 
 class AStar(Graph):
     def __init__(self, graph_dict: dict) -> None:
@@ -120,34 +121,13 @@ class AStar(Graph):
             self.heuristic_cache[(start, end)] = heuristic
         return self.heuristic_cache[(start, end)]
     
-    def visualize(self, path=None):
-        G = nx.Graph()
-
-        # Add edges to the graph
-        for vertex, neighbors in self.graph.items():
-            for neighbor, weight in neighbors.items():
-                G.add_edge(vertex, neighbor, weight=0.1)
-
-        pos = nx.spring_layout(G)
-
-        # Set node colors based on whether they are part of the final path
-        node_colors = ['lightblue' if node not in path else 'lightgreen' for node in G.nodes()]
-
-        # Set labels only for nodes in the path
-        node_labels = {node: node if node in path else "" for node in G.nodes()}
-
-        # Draw the graph with custom node labels
-        nx.draw(G, pos, labels=node_labels, node_color=node_colors, node_size=500, font_size=10, font_weight='bold')
-        edge_labels = nx.get_edge_attributes(G, 'weight')
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-
-        plt.show()
-
-
+@click.command()
+@click.option('--start', type=str, help='Title of start article')
+@click.option('--end', type=str, help='Title of end article')
+def main(start, end):
+    a_star = AStar({})
+    path = a_star.find_path(start, end)
+    print(f"Discovered Path: {path}")
 
 if __name__ == "__main__":
-   
-    test = AStar({})
-    path = test.find_path("Alnico", "Electric field")
-    print(path)
-    #test.visualize(path)
+   main()

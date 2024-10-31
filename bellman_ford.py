@@ -85,7 +85,7 @@ class BellmanFord(Graph):
         self.path = path
         return path
 
-# Run main function with: `python3 dijkstra.py --start "START" --end "END"`
+# Run main function with: `python3 bellman_ford.py --start "START" --end "END"`
 @click.command()
 @click.option('--start', type=str, help='Name of starting page')
 @click.option('--end', type=str, help='Name of goal page')

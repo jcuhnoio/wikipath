@@ -6,7 +6,7 @@ from graph import Graph
 from heapq import heapify, heappop, heappush
 from collections import defaultdict
 import time
-
+import click
 
 class Dijkstra(Graph):
     def __init__(self, graph_dict: dict) -> None:
@@ -168,23 +168,20 @@ class Dijkstra(Graph):
                 font_weight="bold",
                 width=0.5  # Thinner edges
             )
-            # edge_labels = nx.get_edge_attributes(G, "weight")
-            # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
             plt.show()
         else:
             raise TypeError("No path has been calculated")
 
 
 
-
-if __name__ == "__main__":
+# Run main function with: `python3 dijkstra.py --start "START" --end "END"`
+@click.command()
+@click.option('--start', type=str, help='Name of starting page')
+@click.option('--end', type=str, help='Name of goal page')
+def main(start,end):
     dijk_dynamic = Dijkstra({})
-    result = dijk_dynamic.find_shortest_path_dynamic(start="Politics", goal="President")
+    result = dijk_dynamic.find_shortest_path_dynamic(start=start, goal=end)
     print(result)
 
-    # dijk_precomputed = Dijkstra(TEST_GRAPH)
-    # result2 = dijk_precomputed.find_shortest_path_precomputed(start = "Node2", goal = "Node34")
-
-    # print(result2)
-    # dijk_precomputed.visualize(start = "Node2", end = "Node34")
-
+if __name__ == "__main__":
+    main()

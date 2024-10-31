@@ -1,10 +1,11 @@
-import networkx as nx
-import matplotlib.pyplot as plt
-from graph import Graph, TEST_GRAPH
 from scraper import *
 from graph import Graph
-from collections import defaultdict
+
+import matplotlib.pyplot as plt
+
 import time
+import click
+from collections import defaultdict
 
 
 class BellmanFord(Graph):
@@ -86,55 +87,14 @@ class BellmanFord(Graph):
         self.path = path
         return path
 
-    def visualize(self, start, end):
-        """
-        Visualize the graph and the shortest path using NetworkX and Matplotlib.
-
-        Args:
-            start: The start node to highlight.
-            end: The goal node to highlight.
-        """
-        if self.path:
-            G = nx.Graph()
-            for vertex, neighbors in self.graph.items():
-                for neighbor, weight in neighbors.items():
-                    G.add_edge(vertex, neighbor, weight=weight)
-
-            plt.figure(figsize=(12, 8))  # Adjust the size as needed
-            pos = nx.spring_layout(
-                G, k=1
-            )  # Increase k for more space between nodes
-
-            node_colors = [
-                (
-                    "pink"
-                    if node == start
-                    else (
-                        "orange"
-                        if node == end
-                        else (
-                            "lightgreen" if node in self.path else "lightblue"
-                        )
-                    )
-                )
-                for node in G.nodes()
-            ]
-            nx.draw(
-                G,
-                pos,
-                with_labels=True,
-                node_color=node_colors,
-                node_size=300,  # Smaller node size
-                font_size=10,
-                font_weight="bold",
-                width=0.5,  # Thinner edges
-            )
-            plt.show()
-        else:
-            raise TypeError("No path has been calculated")
-
+# Run main function with: `python3 dijkstra.py --start "START" --end "END"`
+@click.command()
+@click.option('--start', type=str, help='Name of starting page')
+@click.option('--end', type=str, help='Name of goal page')
+def main(start,end):
+    bf = BellmanFord({})
+    result = bf.find_shortest_path(start=start, goal=end)
+    print(result)
 
 if __name__ == "__main__":
-    bf = BellmanFord({})
-    result = bf.find_shortest_path(start="Alnico", goal="Bible")
-    print(result)
+    main()

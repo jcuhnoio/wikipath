@@ -100,6 +100,18 @@ class AStar(Graph):
         return path
         
     def find_heuristic(self, start, end):
+        """
+        Given two articles, finds the cosine similarity between them
+        and uses that as a heuristic to measure distance between topics.
+
+        Args:
+            start (string): The starting article for the heuristic.
+            end (string): The ending article for the heuristic.
+        
+        Returns:
+            heuristic (float32): A value from 1 to 0 which measures how similar
+                the two topics are. A lower value is better.
+        """
         if (start, end) not in self.heuristic_cache:
             start_vec = self.model.get_word_vector(start)
             end_vec = self.model.get_word_vector(end)
